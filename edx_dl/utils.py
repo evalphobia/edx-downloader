@@ -11,9 +11,9 @@ import urllib2
 
 from bs4 import BeautifulSoup
 
-EDX_HOMEPAGE = 'https://courses.edx.org'
-LOGIN_URL = 'https://courses.edx.org/login_ajax'
-DASHBOARD = 'https://courses.edx.org/dashboard'
+EDX_HOMEPAGE = 'https://class.stanford.edu'
+LOGIN_URL = 'https://class.stanford.edu/login_ajax'
+DASHBOARD = 'https://class.stanford.edu/dashboard'
 YOUTUBE_VIDEO_ID_LENGTH = 11
 
 
