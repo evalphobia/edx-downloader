@@ -43,9 +43,10 @@ import sys
 
 from bs4 import BeautifulSoup
 
-EDX_HOMEPAGE = 'https://courses.edx.org/login_ajax'
-LOGIN_API = 'https://courses.edx.org/login_ajax'
-DASHBOARD = 'https://courses.edx.org/dashboard'
+BASE_URI = 'https://education.mongodb.com'
+EDX_HOMEPAGE = BASE_URI + '/login'
+LOGIN_API = BASE_URI + '/login'
+DASHBOARD = BASE_URI + '/dashboard'
 YOUTUBE_VIDEO_ID_LENGTH = 11
 
 
@@ -100,17 +101,17 @@ def directory_name(initial_name):
     for ch in initial_name:
         if allowed_chars.find(ch) != -1:
             result_name+=ch
-    return result_name if result_name != "" else "course_folder"
+    return result_name if result_name != "" else "course_folder" 
 
 def parse_commandline_options(argv):
     global USER_EMAIL, USER_PSWD, DOWNLOAD_DIRECTORY, USER_AGENT
-    opts, args = getopt.getopt(argv,
-                               "u:p:",
+    opts, args = getopt.getopt(argv, 
+                               "u:p:", 
                                ["download-dir=", "user-agent=", "custom-user-agent="])
     for opt, arg in opts :
         if opt == "-u" :
             USER_EMAIL = arg
-
+        
         elif opt == "-p" :
             USER_PSWD = arg
 
@@ -126,13 +127,13 @@ def parse_commandline_options(argv):
 
         elif opt == "--custom-user-agent":
             USER_AGENT = arg
-
+            
         elif opt == "-h":
             usage()
 
 
 def usage() :
-    print("command-line options:")
+    print("command-line options:") 
     print("""-u <username>: (Optional) indicate the username.
 -p <password>: (Optional) indicate the password.
 --download-dir=<path>: (Optional) save downloaded files in <path>
@@ -141,7 +142,7 @@ def usage() :
 --custom-user-agent="MYUSERAGENT": (Optional) use the string "MYUSERAGENT" as
              user agent
 """)
-
+    
 
 
 def main():
@@ -156,9 +157,9 @@ def main():
         USER_EMAIL = input('Username: ')
     if  USER_PSWD == "":
         USER_PSWD = getpass.getpass()
-
+    
     if USER_EMAIL == "" or USER_PSWD == "":
-        print("You must supply username AND password to log-in")
+        print("You must supply username AND password to log-in") 
         sys.exit(2)
 
     # Prepare Headers
@@ -184,14 +185,14 @@ def main():
     # Get user info/courses
     dash = get_page_contents(DASHBOARD, headers)
     soup = BeautifulSoup(dash)
-    data = soup.find_all('ul')[1]
-    USERNAME = data.find_all('span')[1].string
-    USEREMAIL = data.find_all('span')[3].string
-    COURSES = soup.find_all('article', 'course')
+    data = soup.find_all('dl', 'sidebar-panel')[0]
+    USERNAME = data.find_all('dd')[1].string
+    USEREMAIL = data.find_all('dd')[2].string
+    COURSES = soup.find_all('article', 'my-course')
     courses = []
     for COURSE in COURSES:
         c_name = COURSE.h3.text.strip()
-        c_link = 'https://courses.edx.org' + COURSE.a['href']
+        c_link = BASE_URI + COURSE.a['href']
         if c_link.endswith('info') or c_link.endswith('info/'):
             state = 'Started'
         else:
@@ -222,9 +223,9 @@ def main():
     soup = BeautifulSoup(courseware)
 
     data = soup.find("section",
-                     {"class": "content-wrapper"}).section.div.div.nav
+                     {"class": "container"}).section.div.nav
     WEEKS = data.find_all('div')
-    weeks = [(w.h3.a.string, ['https://courses.edx.org' + a['href'] for a in
+    weeks = [(w.h3.a.string, [BASE_URI + a['href'] for a in
              w.ul.find_all('a')]) for w in WEEKS]
     numOfWeeks = len(weeks)
 
@@ -268,7 +269,7 @@ def main():
     # Say where it's gonna download files, just for clarity's sake.
     print("Saving videos into: " + DOWNLOAD_DIRECTORY)
     print("\n\n")
-
+    
     # Download Videos
     c = 0
     for v in video_link:
